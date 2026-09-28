@@ -1,0 +1,41 @@
+name: inf-sec-lab1
+run-name: ${{ github.actor }} is starting Github Actions
+on:
+  push :
+    branches : [ main ]
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: lab1_test
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+        ports:
+            - "5432:5432"
+        options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+    steps:
+      - name : checkout
+        uses : actions/checkout@v6
+      - name : Set up java
+        uses : actions/setup-java@v6
+        with :
+          java-version: 17
+          distribution : temurin
+          cache: maven
+      - name: build and set
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/lab1_test
+          SPRING_DATASOURCE_USERNAME: test_user
+          SPRING_DATASOURCE_PASSWORD: test_password
+          SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+          JWT_LIFETIME: 30m
+        run : | 
+         export JWT_SECRET="$(openssl rand -base64 32)"
+         bash ./mvnw -B verify
