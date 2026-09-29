@@ -2,7 +2,7 @@ name: inf-sec-lab1
 run-name: ${{ github.actor }} is starting Github Actions
 on:
   push :
-    branches : [ main ]
+  pull_request:
 jobs:
   init:
     runs-on: ubuntu-latest
@@ -39,3 +39,18 @@ jobs:
         run : | 
          export JWT_SECRET="$(openssl rand -base64 32)"
          bash ./mvnw -B verify
+      - name : SAST
+        run : bash ./mvnw -B spotbugs:check
+      - name: SCA
+        if : ${{ !cancelled() }}
+        env:
+          NVD_API_KEY: "3E81725C-B140-446D-9C81-A1F059E1C96A"
+        run : bash ./mvnw -B dependency-check:check
+      - name: sec report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            target/spotbugsXml.xml
+            target/dependency-check-report.html
