@@ -1,5 +1,6 @@
 package io.github.timur0o31.lab1_inf.security;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,7 +24,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtUtils jwtUtils, UserDetailsService userDetailsService) throws Exception {
         JwtFilter jwtFilter = new JwtFilter(jwtUtils, userDetailsService);
-        return http.csrf((csrf) -> csrf.disable())
+        return http.csrf(SecurityConfig::disableCsrf)
                 .authorizeHttpRequests(authorize->
                         authorize.requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/api/data").authenticated()
@@ -50,6 +52,11 @@ public class SecurityConfig {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(userDetailsService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(daoAuthenticationProvider);
+    }
+
+    @SuppressFBWarnings(value = "SPRING_CSRF_PROTECTION_DISABLED")
+    private static void disableCsrf(CsrfConfigurer<HttpSecurity> csrf) {
+        csrf.disable();
     }
 
 }
