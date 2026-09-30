@@ -13,17 +13,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 import io.jsonwebtoken.JwtException;
+import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.json.JsonMapper;
+
 import java.io.IOException;
 
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
     private final UserDetailsService userDetailsService;
-    private final JsonMapper jsonMapper;
+    private final ObjectWriter jsonMapper;
     public JwtFilter(JwtUtils jwtUtils, UserDetailsService userDetailsService, JsonMapper jsonMapper) {
         this.jwtUtils = jwtUtils;
         this.userDetailsService = userDetailsService;
-        this.jsonMapper = jsonMapper;
+        this.jsonMapper = jsonMapper.writerFor(ErrorResponse.class);
     }
 
     @Override

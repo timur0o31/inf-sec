@@ -19,6 +19,7 @@ Authorization: Bearer <token>
 | `POST` | `/auth/register` | Открыт | Регистрация пользователя и выдача JWT |
 | `POST` | `/auth/login` | Открыт | Проверка логина и пароля, выдача JWT |
 | `GET` | `/api/data` | JWT | Получение списка пользователей: ID и имя |
+
 Для запросов /auth/register и /auth/login. Тело запроса — JSON:
 #### `POST /auth/register`
 ```json
