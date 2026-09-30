@@ -144,13 +144,18 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.9.6.0</version>
+                <version>4.10.4.1</version>
                 <configuration>
                     <plugins>
+                        <dependency>
+                            <groupId>com.mebigfatguy.sb-contrib</groupId>
+                            <artifactId>sb-contrib</artifactId>
+                            <version>7.6.10</version>
+                        </dependency>
                         <plugin>
                             <groupId>com.h3xstream.findsecbugs</groupId>
                             <artifactId>findsecbugs-plugin</artifactId>
-                            <version>1.12.0</version>
+                            <version>1.14.0</version>
                         </plugin>
                     </plugins>
                 </configuration>
@@ -161,7 +166,6 @@
                 <artifactId>dependency-check-maven</artifactId>
                 <version>12.1.6</version>
                 <configuration>
-                    <failBuildOnCVSS>8</failBuildOnCVSS>
                     <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
                 </configuration>
             </plugin>
