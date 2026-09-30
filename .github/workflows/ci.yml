@@ -51,6 +51,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: security-reports
-          path: |
-            target/spotbugsXml.xml
-            target/dependency-check-report.html
+          path: target/dependency-check-report.html

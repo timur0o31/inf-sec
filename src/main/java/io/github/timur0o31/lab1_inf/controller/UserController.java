@@ -18,7 +18,7 @@ public class UserController {
     }
 
     @GetMapping("/api/data")
-    public ResponseEntity<List<UserResponseDto>> getAllOrders(){
+    public ResponseEntity<List<UserResponseDto>> getAllUsers(){
         return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsers());
     }
 
