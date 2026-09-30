@@ -40,13 +40,13 @@ public class SecurityConfig {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json;charset=UTF-8");
                             ErrorResponse error = new ErrorResponse(401,"Для доступа требуется действующий JWT");
-                            response.getWriter().write(jsonMapper.writeValueAsString(error));
+                            jsonMapper.writeValue(response.getOutputStream(), error);
                         })
                         .accessDeniedHandler((request, response, exception) -> {
                             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                             response.setContentType("application/json;charset=UTF-8");
                             ErrorResponse error = new ErrorResponse(403, "Доступ запрещён");
-                            response.getWriter().write(jsonMapper.writeValueAsString(error));
+                            jsonMapper.writeValue(response.getOutputStream(), error);
                         })
                 )
                 .addFilterAfter(jwtFilter, LogoutFilter.class)

@@ -8,6 +8,7 @@ import io.github.timur0o31.lab1_inf.repository.UserRepository;
 import io.github.timur0o31.lab1_inf.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,7 +28,9 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(
                         userRequestDto.username(),
                         userRequestDto.password()));
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        if (!authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof UserDetails  userDetails)) {
+            throw new BadCredentialsException("Не удалось выполнить вход");
+        }
         return new JwtResponse(jwtUtils.generateToken(userDetails));
     }
 

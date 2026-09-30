@@ -46,7 +46,7 @@ public class JwtFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
             ErrorResponse error = new ErrorResponse(401, "JWT недействителен или просрочен");
-            response.getWriter().write(jsonMapper.writeValueAsString(error));
+            jsonMapper.writeValue(response.getOutputStream(), error);
             return;
         }
         filterChain.doFilter(request,response);
