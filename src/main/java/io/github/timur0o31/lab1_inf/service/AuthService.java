@@ -43,6 +43,6 @@ public class AuthService {
             userRepository.save(newUser);
             return login(userRequestDto);
         }
-        throw new UserAlreadyExists("user with this username already exists");
+        throw new UserAlreadyExists("Пользователь с таким именем уже существует");
     }
 }

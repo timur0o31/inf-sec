@@ -1,6 +1,8 @@
 package io.github.timur0o31.lab1_inf.security;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.github.timur0o31.lab1_inf.dto.ErrorResponse;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,16 +19,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtUtils jwtUtils, UserDetailsService userDetailsService) throws Exception {
-        JwtFilter jwtFilter = new JwtFilter(jwtUtils, userDetailsService);
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtUtils jwtUtils, UserDetailsService userDetailsService, JsonMapper jsonMapper) throws Exception {
+        JwtFilter jwtFilter = new JwtFilter(jwtUtils, userDetailsService,jsonMapper);
         return http.csrf(SecurityConfig::disableCsrf)
                 .authorizeHttpRequests(authorize->
-                        authorize.requestMatchers("/auth/**").permitAll()
+                        authorize.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                                .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/api/data").authenticated())
                 .sessionManagement((session)->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -34,6 +38,15 @@ public class SecurityConfig {
                         .authenticationEntryPoint((request, response, exception) -> {
                             response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+                            ErrorResponse error = new ErrorResponse(401,"Для доступа требуется действующий JWT");
+                            response.getWriter().write(jsonMapper.writeValueAsString(error));
+                        })
+                        .accessDeniedHandler((request, response, exception) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json;charset=UTF-8");
+                            ErrorResponse error = new ErrorResponse(403, "Доступ запрещён");
+                            response.getWriter().write(jsonMapper.writeValueAsString(error));
                         })
                 )
                 .addFilterAfter(jwtFilter, LogoutFilter.class)

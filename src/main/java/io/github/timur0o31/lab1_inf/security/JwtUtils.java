@@ -31,7 +31,7 @@ public class JwtUtils {
     }
 
     public String getUsernameFromToken(String token) {
-        return getClaimsFromToken(token).getSubject();
+        return verifyAndGetClaims(token).getSubject();
     }
 
 
@@ -40,7 +40,7 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    private Claims getClaimsFromToken(String token) {
+    private Claims verifyAndGetClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSignKey())
                 .build()

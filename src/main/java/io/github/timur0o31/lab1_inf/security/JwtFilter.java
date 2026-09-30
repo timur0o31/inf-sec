@@ -1,5 +1,6 @@
 package io.github.timur0o31.lab1_inf.security;
 
+import io.github.timur0o31.lab1_inf.dto.ErrorResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,14 +13,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 import io.jsonwebtoken.JwtException;
+import tools.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
     private final UserDetailsService userDetailsService;
-    public JwtFilter(JwtUtils jwtUtils, UserDetailsService userDetailsService) {
+    private final JsonMapper jsonMapper;
+    public JwtFilter(JwtUtils jwtUtils, UserDetailsService userDetailsService, JsonMapper jsonMapper) {
         this.jwtUtils = jwtUtils;
         this.userDetailsService = userDetailsService;
+        this.jsonMapper = jsonMapper;
     }
 
     @Override
@@ -38,15 +42,18 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.clearContext();
             response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            ErrorResponse error = new ErrorResponse(401, "JWT недействителен или просрочен");
+            response.getWriter().write(jsonMapper.writeValueAsString(error));
             return;
         }
         filterChain.doFilter(request,response);
     }
 
     private void authenticateUser(String token) {
-        if (token.isEmpty()) throw new BadCredentialsException("Token is empty");
+        if (token.isEmpty()) throw new BadCredentialsException("JWT-токен отсутствует");
         String username = jwtUtils.getUsernameFromToken(token);
-        if (username == null || username.isBlank()) throw new BadCredentialsException("Username is empty");
+        if (username == null || username.isBlank()) throw new BadCredentialsException("Username отсутствует");
         var user = userDetailsService.loadUserByUsername(username);
         var authentication = new UsernamePasswordAuthenticationToken(
                 user,
