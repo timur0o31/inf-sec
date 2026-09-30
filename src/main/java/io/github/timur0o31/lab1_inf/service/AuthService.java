@@ -3,6 +3,7 @@ package io.github.timur0o31.lab1_inf.service;
 import io.github.timur0o31.lab1_inf.dto.JwtResponse;
 import io.github.timur0o31.lab1_inf.dto.UserRequestDto;
 import io.github.timur0o31.lab1_inf.entity.User;
+import io.github.timur0o31.lab1_inf.exceptions.UserAlreadyExists;
 import io.github.timur0o31.lab1_inf.repository.UserRepository;
 import io.github.timur0o31.lab1_inf.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,6 @@ public class AuthService {
             userRepository.save(newUser);
             return login(userRequestDto);
         }
-        throw new RuntimeException("user with this username already exists");
+        throw new UserAlreadyExists("user with this username already exists");
     }
 }

@@ -27,16 +27,14 @@ public class SecurityConfig {
         return http.csrf(SecurityConfig::disableCsrf)
                 .authorizeHttpRequests(authorize->
                         authorize.requestMatchers("/auth/**").permitAll()
-                                .requestMatchers("/api/data").authenticated()
-                ).sessionManagement((session)->
+                                .requestMatchers("/api/data").authenticated())
+                .sessionManagement((session)->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint((request, response, exception) -> {
                             response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         })
-                        .accessDeniedHandler((request, response, exception) ->
-                                response.setStatus(HttpServletResponse.SC_FORBIDDEN))
                 )
                 .addFilterAfter(jwtFilter, LogoutFilter.class)
                 .build();
